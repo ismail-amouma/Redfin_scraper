@@ -146,7 +146,6 @@ Contributions to this project are welcome. If you have any suggestions, bug fixe
 
 ## Acknowledgments
 - This project uses Flask, SQLAlchemy, and other open-source libraries.
-- Google Sheets integration is achieved using the Google Sheets API.
 - Data scraping from Redfin is performed using a custom scraper.
 - Data updates are scheduled using the `apscheduler` library.
 
