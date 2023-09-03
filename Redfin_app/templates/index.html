@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Scraping tool</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+        <style>
+            body {
+                background-color: #f0f2f5;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+            h1, h2 {
+                color: #333;
+                text-align: center;
+                padding: 20px 0;
+            }
+            form {
+            width: 20%;
+            text-align: center;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+            .flex {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                
+            }
+            label {
+                display: block;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+            input[type="text"] {
+                width: 60%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+            button[type="submit"] {
+                background-color: #333;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+            
+            }
+
+            .table_scale{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                transform: scale(0.6);
+                transform-origin: top;
+                
+            }
+            table {
+                box-shadow: 0px 20px 10px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                background-color: #fff;
+                border-collapse: collapse;
+                border: 1px solid #ddd;
+                margin: 0 auto;
+                border-radius: 10px;
+            }
+            th, td {
+                padding: 10px;
+                text-align: center;
+            }
+            th {
+                background-color: #333;
+                color: #fff;
+            }
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+            .autocomplete {
+                position: relative;
+
+                display: inline-block;
+            }
+
+            .suggestions {
+                color: white; /* Text color */
+                position: relative;
+                z-index: 2;
+                top: 100%;
+                margin: 0 auto;
+                width: 70%;
+                background-color: #333; /* Background color */
+                border: none;
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                max-height: 150px;
+                overflow-y: auto;
+                }
+                .suggestion {
+                padding: 10px;
+                cursor: pointer;
+                transition: background-color 0.3s; /* Add transition for smooth hover effect */
+                }
+
+                .suggestion:hover {
+                    background-color: #555; /* Change background color on hover */
+                }
+            
+                .delete-button{
+                background-color: #333;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+            
+                }
+                .delete-button:hover {
+                    background-color: #ff0000; /* Change background color on hover */
+
+                }
+        </style>
+    </head>
+<body>
+    <h1>Scraped Data</h1>
+    
+    <form action="/add_data" method="post">
+        <label for="location">Location:</label>
+        <div class="flex">
+            <div class="autocomplete">
+                <input type="text" id="location" name="location" placeholder="Input the location">
+                <div id="suggestions" class="suggestions"></div>
+              </div>
+            <button type="submit">Scrape</button>
+        </div>
+    </form>
+
+    <h2>Data Table</h2>
+    <div class="table_scale">
+    <table>
+        <tr>
+            <th>Location</th>
+            <th>Time on Redfin</th>
+            <th>Property Type</th>
+            <th>Year Built</th>
+            <th>Style</th>
+            <th>Community</th>
+            <th>Lot Size</th>
+            <th>Street Address</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Zip Code</th>
+            <th>Price</th>
+            <th>Beds</th>
+            <th>Baths</th>
+            <th>Size</th>
+            <th>Agent Name</th>
+            <th>Agent last Name</th>
+            <th>Agent Phone</th>
+            <th>Agent Email</th>
+            <th>Delete row</th>
+            <th>Delete location</th>
+        </tr>
+        {% if locations %}
+        {% for location in locations %}
+        {% if location.scraped_data %}
+        {% for scraped_item in location.scraped_data %}
+            <tr>
+                <td>{{ location.name }}</td>
+
+                <td>{{ scraped_item.time_on_redfin }}</td>
+                <td>{{ scraped_item.property_type }}</td>
+                <td>{{ scraped_item.year_built }}</td>
+                <td>{{ scraped_item.style }}</td>
+                <td>{{ scraped_item.community }}</td>
+                <td>{{ scraped_item.lot_size }}</td>
+                <td>{{ scraped_item.street_address }}</td>
+                <td>{{ scraped_item.city }}</td>
+                <td>{{ scraped_item.state }}</td>
+                <td>{{ scraped_item.zip_code }}</td>
+                <td>{{ scraped_item.price }}</td>
+                <td>{{ scraped_item.beds }}</td>
+                <td>{{ scraped_item.baths }}</td>
+                <td>{{ scraped_item.size }}</td>
+                <td>{{ scraped_item.agent_name }}</td>
+                <td>{{ scraped_item.agent_last_name }}</td>
+                <td>{{ scraped_item.agent_phone }}</td>
+                <td>{{ scraped_item.agent_email }}</td>
+                <td>
+                    <button onclick="deleteScrapedData({{ scraped_item.id }})" class="delete-button">Delete Row</button>
+                </td>
+                <td>
+                    <button onclick="deleteLocation({{ location.id }})" class="delete-button">Delete Location</button>
+                </td>
+                    {% endfor %}
+                {% else %}
+                    <td colspan="21">No data yet,Add data!</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    {% else %}
+            <tr>
+                <td colspan="21">No locations found,Add a location!</td>
+            </tr>
+        {% endif %}
+    </table>
+    </div>
+    <script>
+        const locations = [
+            "Huntsville, AL",
+            "Birmingham, AL",
+            "Mobile, AL",
+            "Madison, AL",
+            "Hoover, AL",
+            "Gulf-Shores, AL",
+            "Orange-Beach, AL",
+            "Montgomery, AL",
+            "Vestavia-Hills, AL",
+            "Fairhope, AL",
+            "Athens, AL",
+            "Pelham, AL",
+            "Auburn, AL",
+            "Decatur, AL",
+            "Tuscaloosa, AL",
+            "Trussville, AL",
+            "Mountain-Brook, AL",
+            "Homewood, AL",
+            "Daphne, AL",
+            "Alabaster, AL",
+            "Anchorage, AK",
+            "Fairbanks, AK",
+            "Wasilla, AK",
+            "Palmer, AK",
+            "Homer, AK",
+            "Kenai, AK",
+            "Soldotna, AK",
+            "Seward, AK",
+            "North-Pole, AK",
+            "Kodiak, AK",
+            "Talkeetna, AK",
+            "Willow, AK",
+            "Anchor-Point, AK",
+            "Big-Lake, AK",
+            "Sterling, AK",
+            "Houston, AK",
+            "Ninilchik, AK",
+            "Nikiski, AK",
+            "Kasilof, AK",
+            "Butte, AK",
+            "Phoenix, AZ",
+            "Scottsdale, AZ",
+            "Gilbert, AZ",
+            "Chandler, AZ",
+            "Mesa, AZ",
+            "Tucson, AZ",
+            "Tempe, AZ",
+            "Queen-Creek, AZ",
+            "Surprise, AZ",
+            "Glendale, AZ",
+            "Peoria, AZ",
+            "Flagstaff, AZ",
+            "Prescott, AZ",
+            "Goodyear, AZ",
+            "Sedona, AZ",
+            "Buckeye, AZ",
+            "Paradise-Valley, AZ",
+            "San-Tan-Valley, AZ",
+            "Maricopa, AZ",
+            "Fountain-Hills, AZ",
+            "Little-Rock, AR",
+            "Bentonville, AR",
+            "Fayetteville, AR",
+            "Hot-Springs, AR",
+            "Rogers, AR",
+            "Conway, AR",
+            "Bella-Vista, AR",
+            "Benton, AR",
+            "North-Little-Rock, AR",
+            "Sherwood, AR",
+            "Maumelle, AR",
+            "Bryant, AR",
+            "Cabot, AR",
+            "Springdale, AR",
+            "Fort-Smith, AR",
+            "Hot-Springs-Village, AR",
+            "Eureka-Springs, AR",
+            "Jacksonville, AR",
+            "Pine-Bluff, AR",
+            "Alexander, AR",
+            "San-Diego, CA",
+            "Los-Angeles, CA",
+            "San-Francisco, CA",
+            "San-Jose, CA",
+            "Irvine, CA",
+            "Fremont, CA",
+            "Pleasanton, CA",
+            "Sacramento, CA",
+            "Pasadena, CA",
+            "Long-Beach, CA",
+            "Dublin, CA",
+            "San-Ramon, CA",
+            "Temecula, CA",
+            "Riverside, CA",
+            "Corona, CA",
+            "Rancho-Cucamonga, CA",
+            "Huntington-Beach, CA",
+            "Oakland, CA",
+            "Glendale, CA",
+            "Fullerton, CA",
+            "Denver, CO",
+            "Colorado-Springs, CO",
+            "Boulder, CO",
+            "Littleton, CO",
+            "Aurora, CO",
+            "Fort-Collins, CO",
+            "Arvada, CO",
+            "Parker, CO",
+            "Lakewood, CO",
+            "Golden, CO",
+            "Thornton, CO",
+            "Westminster, CO",
+            "Broomfield, CO",
+            "Highlands-Ranch, CO",
+            "Castle-Rock, CO",
+            "Longmont, CO",
+            "Centennial, CO",
+            "Evergreen, CO",
+            "Loveland, CO",
+            "Erie, CO",
+            "Washington-DC, DC",
+            "Greenwich, CT",
+            "Stamford, CT",
+            "West-Hartford, CT",
+            "Westport, CT",
+            "Norwalk, CT",
+            "New-Haven, CT",
+            "Milford, CT",
+            "Darien, CT",
+            "Danbury, CT",
+            "Trumbull, CT",
+            "Hartford, CT",
+            "Ridgefield, CT",
+            "Shelton, CT",
+            "Stratford, CT",
+            "Bridgeport, CT",
+            "Newtown, CT",
+            "Waterbury, CT",
+            "North-Haven, CT",
+            "Wethersfield, CT",
+            "Manchester, CT",
+            "Wilmington, DE",
+            "Newark, DE",
+            "Rehoboth-Beach, DE",
+            "Middletown, DE",
+            "Lewes, DE",
+            "Bethany-Beach, DE",
+            "Dover, DE",
+            "Bear, DE",
+            "New-Castle, DE",
+            "Hockessin, DE",
+            "Smyrna, DE",
+            "Fenwick-Island, DE",
+            "Claymont, DE",
+            "Millsboro, DE",
+            "Dewey-Beach, DE",
+            "Ocean-View, DE",
+            "Selbyville, DE",
+            "Milton, DE",
+            "Townsend, DE",
+            "Milford, DE",
+            "Tampa, FL",
+            "Orlando, FL",
+            "Miami, FL",
+            "Jacksonville, FL",
+            "Fort-Lauderdale, FL",
+            "Sarasota, FL",
+            "Boca-Raton, FL",
+            "Naples, FL",
+            "St-Petersburg, FL",
+            "West-Palm-Beach, FL",
+            "Kissimmee, FL",
+            "Fort-Myers, FL",
+            "Delray-Beach, FL",
+            "Clearwater, FL",
+            "Cape-Coral, FL",
+            "Miami-Beach, FL",
+            "Port-St-Lucie, FL",
+            "St-Augustine, FL",
+            "Pembroke-Pines, FL",
+            "Hollywood, FL",
+            "Atlanta, GA",
+            "Alpharetta, GA",
+            "Marietta, GA",
+            "Cumming, GA",
+            "Savannah, GA",
+            "Suwanee, GA",
+            "Roswell, GA",
+            "Sandy-Springs, GA",
+            "Johns-Creek, GA",
+            "Lawrenceville, GA",
+            "Duluth, GA",
+            "Smyrna, GA",
+            "Decatur, GA",
+            "Buford, GA",
+            "Woodstock, GA",
+            "Kennesaw, GA",
+            "McDonough, GA",
+            "Dunwoody, GA",
+            "Fayetteville, GA",
+            "Peachtree-City, GA",
+            "Honolulu, HI",
+            "Kailua, HI",
+            "Hilo, HI",
+            "EWA-Beach, HI",
+            "Kihei, HI",
+            "Kaneohe, HI",
+            "Kapolei, HI",
+            "Lahaina, HI",
+            "Mililani-Town, HI",
+            "Pearl-City, HI",
+            "Aiea, HI",
+            "Waipahu, HI",
+            "Wailea, HI",
+            "Waimea, HI",
+            "Pahoa, HI",
+            "Princeville, HI",
+            "Waianae, HI",
+            "Mililani-Mauka, HI",
+            "Wailuku, HI",
+            "Boise, ID",
+            "Meridian, ID",
+            "Coeur-d-Alene, ID",
+            "Eagle, ID",
+            "Nampa, ID",
+            "Post-Falls, ID",
+            "Sandpoint, ID",
+            "Star, ID",
+            "Hayden, ID",
+            "Caldwell, ID",
+            "Idaho-Falls, ID",
+            "Kuna, ID",
+            "Twin-Falls, ID",
+            "Rathdrum, ID",
+            "Middleton, ID",
+            "Moscow, ID",
+            "McCall, ID",
+            "Athol, ID",
+            "Sun-Valley, ID",
+            "Emmett, ID",
+            "Chicago, IL",
+            "Naperville, IL",
+            "Schaumburg, IL",
+            "Arlington-Heights, IL",
+            "Glenview, IL",
+            "Orland-Park, IL",
+            "Des-Plaines, IL",
+            "Downers-Grove, IL",
+            "Plainfield, IL",
+            "Mount-Prospect, IL",
+            "Evanston, IL",
+            "Palatine, IL",
+            "Oak-Park, IL",
+            "Aurora, IL",
+            "Lombard, IL",
+            "Skokie, IL",
+            "Hoffman-Estates, IL",
+            "Elmhurst, IL",
+            "Northbrook, IL",
+            "Glen-Ellyn, IL",
+            "Indianapolis, IN",
+            "Carmel, IN",
+            "Fishers, IN",
+            "Zionsville, IN",
+            "Munster, IN",
+            "Noblesville, IN",
+            "Westfield, IN",
+            "Greenwood, IN",
+            "Hammond, IN",
+            "Dyer, IN",
+            "Crown-Point, IN",
+            "Schererville, IN",
+            "Fort-Wayne, IN",
+            "Brownsburg, IN",
+            "Valparaiso, IN",
+            "St-John, IN",
+            "Evansville, IN",
+            "Gary, IN",
+            "Avon, IN",
+            "Merrillville, IN",
+            "Des-Moines, IA",
+            "Iowa-City, IA",
+            "West-Des-Moines, IA",
+            "Ankeny, IA",
+            "Cedar-Rapids, IA",
+            "Davenport, IA",
+            "Urbandale, IA",
+            "Waukee, IA",
+            "Ames, IA",
+            "Council-Bluffs, IA",
+            "Dubuque, IA",
+            "Johnston, IA",
+            "Bettendorf, IA",
+            "Clive, IA",
+            "Grimes, IA",
+            "Sioux-City, IA",
+            "Coralville, IA",
+            "Altoona, IA",
+            "Waterloo, IA",
+            "Cedar-Falls, IA",
+            "Overland-Park, KS",
+            "Olathe, KS",
+            "Wichita, KS",
+            "Kansas-City, KS",
+            "Leawood, KS",
+            "Lenexa, KS",
+            "Shawnee, KS",
+            "Prairie-Village, KS",
+            "Lawrence, KS",
+            "Topeka, KS",
+            "Mission, KS",
+            "Manhattan, KS",
+            "Mission-Hills, KS",
+            "Gardner, KS",
+            "Leavenworth, KS",
+            "Fairway, KS",
+            "Bonner-Springs, KS",
+            "Spring-Hill, KS",
+            "Roeland-Park, KS",
+            "Basehor, KS",
+            "Louisville, KY",
+            "Lexington, KY",
+            "Covington, KY",
+            "Bowling-Green, KY",
+            "Florence, KY",
+            "Georgetown, KY",
+            "Frankfort, KY",
+            "Richmond, KY",
+            "Newport, KY",
+            "Union, KY",
+            "Fort-Thomas, KY",
+            "Nicholasville, KY",
+            "Versailles, KY",
+            "Winchester, KY",
+            "Paducah, KY",
+            "Elizabethtown, KY",
+            "Bardstown, KY",
+            "Shelbyville, KY",
+            "Prospect, KY",
+            "Paris, KY",
+            "New-Orleans, LA",
+            "Baton-Rouge, LA",
+            "Metairie, LA",
+            "Mandeville, LA",
+            "Covington, LA",
+            "Slidell, LA",
+            "Denham-Springs, LA",
+            "Prairieville, LA",
+            "Shreveport, LA",
+            "Kenner, LA",
+            "Lafayette, LA",
+            "Zachary, LA",
+            "Gonzales, LA",
+            "Gretna, LA",
+            "Hammond, LA",
+            "Madisonville, LA",
+            "Marrero, LA",
+            "Harvey, LA",
+            "Chalmette, LA",
+            "Ponchatoula, LA",
+            "Portland, ME",
+            "Scarborough, ME",
+            "Falmouth, ME",
+            "South-Portland, ME",
+            "Cape-Elizabeth, ME",
+            "Kennebunk, ME",
+            "Brunswick, ME",
+            "Bangor, ME",
+            "Yarmouth, ME",
+            "Saco, ME",
+            "Kittery, ME",
+            "Kennebunkport, ME",
+            "Freeport, ME",
+            "Camden, ME",
+            "Biddeford, ME",
+            "Bar-Harbor, ME",
+            "Westbrook, ME",
+            "Bath, ME",
+            "Old-Orchard-Beach, ME",
+            "Gorham, ME",
+            "Bowie, MD",
+            "Baltimore, MD",
+            "Silver-Spring, MD",
+            "Frederick, MD",
+            "Columbia, MD",
+            "Bethesda, MD",
+            "Upper-Marlboro, MD",
+            "Laurel, MD",
+            "Rockville, MD",
+            "Ellicott-City, MD",
+            "Gaithersburg, MD",
+            "Annapolis, MD",
+            "Waldorf, MD",
+            "Potomac, MD",
+            "Germantown, MD",
+            "Fort-Washington, MD",
+            "Crofton, MD",
+            "Clarksburg, MD",
+            "Ocean-City, MD",
+            "Odenton, MD",
+            "Boston, MA",
+            "Newton, MA",
+            "Lexington, MA",
+            "Cambridge, MA",
+            "Quincy, MA",
+            "Arlington, MA",
+            "Needham, MA",
+            "Medford, MA",
+            "Braintree, MA",
+            "Natick, MA",
+            "Wellesley, MA",
+            "Acton, MA",
+            "Woburn, MA",
+            "Brookline, MA",
+            "Waltham, MA",
+            "Chelmsford, MA",
+            "Andover, MA",
+            "Belmont, MA",
+            "Worcester, MA",
+            "Canton, MA",
+            "Detroit, MI",
+            "Ann-Arbor, MI",
+            "Grand-Rapids, MI",
+            "Troy, MI",
+            "Novi, MI",
+            "Farmington-Hills, MI",
+            "Royal-Oak, MI",
+            "Northville, MI",
+            "Livonia, MI",
+            "Southfield, MI",
+            "Bloomfield-Hills, MI",
+            "Rochester-Hills, MI",
+            "Birmingham, MI",
+            "Sterling-Heights, MI",
+            "Holland, MI",
+            "Plymouth, MI",
+            "New-Buffalo, MI",
+            "Dearborn, MI",
+            "Kalamazoo, MI",
+            "Warren, MI",
+            "Minneapolis, MN",
+            "St-Paul, MN",
+            "Edina, MN",
+            "Eden-Prairie, MN",
+            "Plymouth, MN",
+            "Minnetonka, MN",
+            "Eagan, MN",
+            "Woodbury, MN",
+            "Maple-Grove, MN",
+            "Bloomington, MN",
+            "Lakeville, MN",
+            "Apple-Valley, MN",
+            "St-Louis-Park, MN",
+            "Rochester, MN",
+            "Blaine, MN",
+            "Duluth, MN",
+            "Brooklyn-Park, MN",
+            "Burnsville, MN",
+            "Stillwater, MN",
+            "Chanhassen, MN",
+            "Olive-Branch, MS",
+            "Gulfport, MS",
+            "Ocean-Springs, MS",
+            "Biloxi, MS",
+            "Laurel, MS",
+            "Jackson, MS",
+            "Southaven, MS",
+            "Madison, MS",
+            "Brandon, MS",
+            "Bay-St-Louis, MS",
+            "Hattiesburg, MS",
+            "Hernando, MS",
+            "Oxford, MS",
+            "Pass-Christian, MS",
+            "Horn-Lake, MS",
+            "Ridgeland, MS",
+            "Long-Beach, MS",
+            "Byhalia, MS",
+            "Clinton, MS",
+            "Tupelo, MS",
+            "Kansas-City, MO",
+            "St-Louis, MO",
+            "Lee-s-Summit, MO",
+            "St-Charles, MO",
+            "Chesterfield, MO",
+            "Kirkwood, MO",
+            "Ballwin, MO",
+            "O-Fallon, MO",
+            "Blue-Springs, MO",
+            "Independence, MO",
+            "Springfield, MO",
+            "Webster-Groves, MO",
+            "Wildwood, MO",
+            "St-Peters, MO",
+            "Clayton, MO",
+            "Columbia, MO",
+            "Liberty, MO",
+            "Ladue, MO",
+            "Branson, MO",
+            "Creve-Coeur, MO",
+            "Bozeman, MT",
+            "Missoula, MT",
+            "Billings, MT",
+            "Whitefish, MT",
+            "Kalispell, MT",
+            "Helena, MT",
+            "Big-Sky, MT",
+            "Great-Falls, MT",
+            "Livingston, MT",
+            "Hamilton, MT",
+            "Belgrade, MT",
+            "Polson, MT",
+            "Bigfork, MT",
+            "Columbia-Falls, MT",
+            "West-Yellowstone, MT",
+            "Libby, MT",
+            "Stevensville, MT",
+            "Red-Lodge, MT",
+            "Dillon, MT",
+            "Darby, MT",
+            "Omaha, NE",
+            "Lincoln, NE",
+            "Papillion, NE",
+            "Bellevue, NE",
+            "Gretna, NE",
+            "Bennington, NE",
+            "La-Vista, NE",
+            "Plattsmouth, NE",
+            "Fremont, NE",
+            "Blair, NE",
+            "Ashland, NE",
+            "Ralston, NE",
+            "Nebraska-City, NE",
+            "Valley, NE",
+            "Grand-Island, NE",
+            "Kearney, NE",
+            "Waterloo, NE",
+            "Springfield, NE",
+            "Wahoo, NE",
+            "Waverly, NE",
+            "Las-Vegas, NV",
+            "Henderson, NV",
+            "Reno, NV",
+            "North-Las-Vegas, NV",
+            "Carson-City, NV",
+            "Incline-Village, NV",
+            "Sparks, NV",
+            "Summerlin-South, NV",
+            "Pahrump, NV",
+            "Boulder-City, NV",
+            "Spring-Valley, NV",
+            "Minden, NV",
+            "Gardnerville, NV",
+            "Laughlin, NV",
+            "Enterprise, NV",
+            "Mesquite, NV",
+            "Fernley, NV",
+            "Paradise, NV",
+            "Stateline, NV",
+            "Fallon, NV",
+            "Nashua, NH",
+            "Salem, NH",
+            "Portsmouth, NH",
+            "Manchester, NH",
+            "Londonderry, NH",
+            "Hudson, NH",
+            "Derry, NH",
+            "Dover, NH",
+            "Exeter, NH",
+            "Concord, NH",
+            "Hampton, NH",
+            "Amherst, NH",
+            "Laconia, NH",
+            "North-Conway, NH",
+            "Keene, NH",
+            "Meredith, NH",
+            "Hanover, NH",
+            "Hooksett, NH",
+            "Wolfeboro, NH",
+            "Goffstown, NH",
+            "Jersey-City, NJ",
+            "Princeton, NJ",
+            "Edison, NJ",
+            "Montclair, NJ",
+            "Hoboken, NJ",
+            "Ridgewood, NJ",
+            "Newark, NJ",
+            "Fort-Lee, NJ",
+            "Bridgewater, NJ",
+            "Summit, NJ",
+            "Clifton, NJ",
+            "Westfield, NJ",
+            "Ocean-City, NJ",
+            "Paramus, NJ",
+            "Haddonfield, NJ",
+            "Nutley, NJ",
+            "Cape-May, NJ",
+            "Old-Bridge, NJ",
+            "Marlton, NJ",
+            "Tenafly, NJ",
+            "Albuquerque, NM",
+            "Santa-Fe, NM",
+            "Rio-Rancho, NM",
+            "Los-Alamos, NM",
+            "Taos, NM",
+            "Las-Cruces, NM",
+            "Corrales, NM",
+            "Los-Lunas, NM",
+            "Tijeras, NM",
+            "Placitas, NM",
+            "Los-Ranchos-de-Albuquerque, NM",
+            "Edgewood, NM",
+            "Ruidoso, NM",
+            "Cedar-Crest, NM",
+            "Las-Vegas, NM",
+            "Bernalillo, NM",
+            "San-Pedro, NM",
+            "Sandia-Park, NM",
+            "Belen, NM",
+            "White-Rock, NM",
+            "New-York, NY",
+            "Manhattan, NY",
+            "Rochester, NY",
+            "Buffalo, NY",
+            "White-Plains, NY",
+            "Yonkers, NY",
+            "Albany, NY",
+            "Huntington, NY",
+            "Scarsdale, NY",
+            "Massapequa, NY",
+            "Commack, NY",
+            "New-Rochelle, NY",
+            "Garden-City, NY",
+            "Smithtown, NY",
+            "Merrick, NY",
+            "Dix-Hills, NY",
+            "Valley-Stream, NY",
+            "Syosset, NY",
+            "Syracuse, NY",
+            "East-Meadow, NY",
+            "Charlotte, NC",
+            "Raleigh, NC",
+            "Cary, NC",
+            "Durham, NC",
+            "Asheville, NC",
+            "Apex, NC",
+            "Greensboro, NC",
+            "Chapel-Hill, NC",
+            "Wilmington, NC",
+            "Winston-Salem, NC",
+            "Wake-Forest, NC",
+            "Concord, NC",
+            "Morrisville, NC",
+            "Holly-Springs, NC",
+            "Huntersville, NC",
+            "Fuquay-Varina, NC",
+            "Mooresville, NC",
+            "Matthews, NC",
+            "Fayetteville, NC",
+            "Waxhaw, NC",
+            "Columbus, OH",
+            "Cincinnati, OH",
+            "Cleveland, OH",
+            "Dublin, OH",
+            "Dayton, OH",
+            "Westerville, OH",
+            "Mason, OH",
+            "Shaker-Heights, OH",
+            "Lakewood, OH",
+            "Solon, OH",
+            "Rocky-River, OH",
+            "Upper-Arlington, OH",
+            "Akron, OH",
+            "Westlake, OH",
+            "Toledo, OH",
+            "New-Albany, OH",
+            "Powell, OH",
+            "West-Chester, OH",
+            "Cleveland-Heights, OH",
+            "Strongsville, OH",
+            "Oklahoma-City, OK",
+            "Tulsa, OK",
+            "Edmond, OK",
+            "Norman, OK",
+            "Broken-Arrow, OK",
+            "Yukon, OK",
+            "Moore, OK",
+            "Bixby, OK",
+            "Owasso, OK",
+            "Mustang, OK",
+            "Broken-Bow, OK",
+            "Choctaw, OK",
+            "Jenks, OK",
+            "Piedmont, OK",
+            "Claremore, OK",
+            "Midwest-City, OK",
+            "Bartlesville, OK",
+            "Sand-Springs, OK",
+            "Guthrie, OK",
+            "Sapulpa, OK",
+            "Portland, OR",
+            "Bend, OR",
+            "Beaverton, OR",
+            "Eugene, OR",
+            "Lake-Oswego, OR",
+            "Hillsboro, OR",
+            "Salem, OR",
+            "Tigard, OR",
+            "West-Linn, OR",
+            "Oregon-City, OR",
+            "Happy-Valley, OR",
+            "Gresham, OR",
+            "Milwaukie, OR",
+            "Sherwood, OR",
+            "Tualatin, OR",
+            "Wilsonville, OR",
+            "Newberg, OR",
+            "Corvallis, OR",
+            "Astoria, OR",
+            "Canby, OR",
+            "Philadelphia, PA",
+            "Pittsburgh, PA",
+            "West-Chester, PA",
+            "Bethlehem, PA",
+            "Media, PA",
+            "Lancaster, PA",
+            "Allentown, PA",
+            "Phoenixville, PA",
+            "York, PA",
+            "Malvern, PA",
+            "King-of-Prussia, PA",
+            "Lansdale, PA",
+            "Doylestown, PA",
+            "Downingtown, PA",
+            "Ambler, PA",
+            "Collegeville, PA",
+            "Ardmore, PA",
+            "Harrisburg, PA",
+            "Easton, PA",
+            "Bryn-Mawr, PA",
+            "Providence, RI",
+            "Warwick, RI",
+            "Cranston, RI",
+            "Cumberland, RI",
+            "Newport, RI",
+            "Pawtucket, RI",
+            "Barrington, RI",
+            "East-Greenwich, RI",
+            "Lincoln, RI",
+            "Narragansett, RI",
+            "North-Kingstown, RI",
+            "East-Providence, RI",
+            "Bristol, RI",
+            "Smithfield, RI",
+            "North-Providence, RI",
+            "Johnston, RI",
+            "Portsmouth, RI",
+            "Westerly, RI",
+            "Coventry, RI",
+            "Tiverton, RI",
+            "Charleston, SC",
+            "Greenville, SC",
+            "Myrtle-Beach, SC",
+            "Mount-Pleasant, SC",
+            "Columbia, SC",
+            "Summerville, SC",
+            "Fort-Mill, SC",
+            "Hilton-Head-Island, SC",
+            "Greer, SC",
+            "Simpsonville, SC",
+            "Rock-Hill, SC",
+            "North-Myrtle-Beach, SC",
+            "Lexington, SC",
+            "Spartanburg, SC",
+            "Murrells-Inlet, SC",
+            "Beaufort, SC",
+            "Bluffton, SC",
+            "North-Charleston, SC",
+            "Conway, SC",
+            "Easley, SC",
+            "Sioux-Falls, SD",
+            "Rapid-City, SD",
+            "Spearfish, SD",
+            "Deadwood, SD",
+            "Brandon, SD",
+            "Custer, SD",
+            "Tea, SD",
+            "Harrisburg, SD",
+            "Sturgis, SD",
+            "Pierre, SD",
+            "Lead, SD",
+            "Hot-Springs, SD",
+            "Brookings, SD",
+            "Aberdeen, SD",
+            "Hill-City, SD",
+            "Lennox, SD",
+            "Watertown, SD",
+            "Vermillion, SD",
+            "Yankton, SD",
+            "Hartford, SD",
+            "Nashville, TN",
+            "Franklin, TN",
+            "Knoxville, TN",
+            "Memphis, TN",
+            "Chattanooga, TN",
+            "Murfreesboro, TN",
+            "Brentwood, TN",
+            "Clarksville, TN",
+            "Hendersonville, TN",
+            "Mount-Juliet, TN",
+            "Germantown, TN",
+            "Maryville, TN",
+            "Spring-Hill, TN",
+            "Collierville, TN",
+            "Gatlinburg, TN",
+            "Lebanon, TN",
+            "Gallatin, TN",
+            "Smyrna, TN",
+            "Nolensville, TN",
+            "Columbia, TN",
+            "Austin, TX",
+            "Dallas, TX",
+            "Houston, TX",
+            "Frisco, TX",
+            "San-Antonio, TX",
+            "Plano, TX",
+            "McKinney, TX",
+            "Fort-Worth, TX",
+            "Katy, TX",
+            "Prosper, TX",
+            "Allen, TX",
+            "Round-Rock, TX",
+            "Irving, TX",
+            "Arlington, TX",
+            "Leander, TX",
+            "Flower-Mound, TX",
+            "Carrollton, TX",
+            "Sugar-Land, TX",
+            "The-Woodlands, TX",
+            "Cedar-Park, TX",
+            "Salt-Lake-City, UT",
+            "Park-City, UT",
+            "St-George, UT",
+            "Lehi, UT",
+            "Sandy, UT",
+            "Provo, UT",
+            "South-Jordan, UT",
+            "Draper, UT",
+            "Ogden, UT",
+            "West-Jordan, UT",
+            "Bountiful, UT",
+            "Herriman, UT",
+            "Layton, UT",
+            "Saratoga-Springs, UT",
+            "Orem, UT",
+            "Riverton, UT",
+            "Holladay, UT",
+            "Heber, UT",
+            "Cedar-City, UT",
+            "Logan, UT",
+            "Burlington, VT",
+            "Stowe, VT",
+            "Woodstock, VT",
+            "Montpelier, VT",
+            "South-Burlington, VT",
+            "Brattleboro, VT",
+            "Shelburne, VT",
+            "Ludlow, VT",
+            "Rutland, VT",
+            "Waterbury, VT",
+            "Wilmington, VT",
+            "Manchester, VT",
+            "Norwich, VT",
+            "Middlebury, VT",
+            "Bennington, VT",
+            "Waitsfield, VT",
+            "Barre, VT",
+            "Quechee, VT",
+            "Essex-Junction, VT",
+            "Jericho, VT",
+            "Alexandria, VA",
+            "Arlington, VA",
+            "Virginia-Beach, VA",
+            "Fairfax, VA",
+            "Ashburn, VA",
+            "Woodbridge, VA",
+            "McLean, VA",
+            "Richmond, VA",
+            "Reston, VA",
+            "Chesapeake, VA",
+            "Falls-Church, VA",
+            "Manassas, VA",
+            "Chantilly, VA",
+            "Leesburg, VA",
+            "Vienna, VA",
+            "Springfield, VA",
+            "Centreville, VA",
+            "Fredericksburg, VA",
+            "Sterling, VA",
+            "Gainesville, VA",
+            "Seattle, WA",
+            "Bellevue, WA",
+            "Bothell, WA",
+            "Tacoma, WA",
+            "Kirkland, WA",
+            "Redmond, WA",
+            "Renton, WA",
+            "Puyallup, WA",
+            "Vancouver, WA",
+            "Kent, WA",
+            "Lynnwood, WA",
+            "Auburn, WA",
+            "Issaquah, WA",
+            "Everett, WA",
+            "Federal-Way, WA",
+            "Sammamish, WA",
+            "Bellingham, WA",
+            "Olympia, WA",
+            "Edmonds, WA",
+            "Gig-Harbor, WA",
+            "Martinsburg, WV",
+            "Harpers-Ferry, WV",
+            "Charles-Town, WV",
+            "Inwood, WV",
+            "Hedgesville, WV",
+            "Falling-Waters, WV",
+            "Shepherdstown, WV",
+            "Ranson, WV",
+            "Bath, WV",
+            "Romney, WV",
+            "Paw-Paw, WV",
+            "Capon-Bridge, WV",
+            "Wardensville, WV",
+            "Great-Cacapon, WV",
+            "Ridgeley, WV",
+            "Keyser, WV",
+            "Moorefield, WV",
+            "Fort-Ashby, WV",
+            "Shannondale, WV",
+            "Shenandoah-Junction, WV",
+            "Madison, WI",
+            "Milwaukee, WI",
+            "Lake-Geneva, WI",
+            "Brookfield, WI",
+            "Wauwatosa, WI",
+            "Kenosha, WI",
+            "Green-Bay, WI",
+            "Menomonee-Falls, WI",
+            "New-Berlin, WI",
+            "Pleasant-Prairie, WI",
+            "Pewaukee, WI",
+            "Mequon, WI",
+            "Whitefish-Bay, WI",
+            "Appleton, WI",
+            "Franklin, WI",
+            "Waukesha, WI",
+            "Middleton, WI",
+            "Sun-Prairie, WI",
+            "Racine, WI",
+            "Oak-Creek, WI",
+        ]
+
+
+        const locationInput = document.getElementById("location");
+        const suggestionsContainer = document.getElementById("suggestions");
+
+        locationInput.addEventListener("input", function() {
+        const inputText = locationInput.value.trim().toLowerCase();
+        const matchingLocations = locations.filter(location =>
+            location.toLowerCase().includes(inputText)
+        );
+
+        suggestionsContainer.innerHTML = "";
+
+        matchingLocations.forEach(match => {
+            const suggestionElement = document.createElement("div");
+            suggestionElement.textContent = match;
+            suggestionElement.classList.add("suggestion");
+
+            suggestionElement.addEventListener("click", function() {
+            locationInput.value = match;
+            suggestionsContainer.innerHTML = "";
+            });
+
+            suggestionsContainer.appendChild(suggestionElement);
+        });
+        });
+
+        document.addEventListener("click", function(event) {
+        if (!event.target.matches("#location, .suggestion")) {
+            suggestionsContainer.innerHTML = "";
+        }
+        });
+ 
+        function deleteScrapedData(scrapedDataId) {
+        if (confirm("Are you sure you want to delete this scraped data?")) {
+            fetch(`/delete_scraped_data/${scrapedDataId}`, {
+                method: 'POST',
+            }).then(response => {
+                if (response.ok) {
+                    location.reload(); // Refresh the page after deletion
+                }
+            });
+        }
+    }
+
+    function deleteLocation(locationId) {
+        if (confirm("Are you sure you want to delete this location and all its data?")) {
+            fetch(`/delete_location/${locationId}`, {
+                method: 'POST',
+            }).then(response => {
+                if (response.ok) {
+                    location.reload(); // Refresh the page after deletion
+                }
+            });
+        }
+    }
+    </script>
+</body>
+</html>
