@@ -49,8 +49,75 @@ To run this application locally, you will need to follow these steps:
    pip install -r requirements.txt
    ```
 
-6. Set up the Google Sheets integration (follow the instructions in the `googlesheets_integration.md` file).
+7. **Google Sheets Configuration**:
 
+   - Open the `refer.py` file in your code editor.
+
+   - Locate the `refresh()` function:
+
+     ```python
+     def refresh():
+         # ...
+         driver.get("Your link or the sheet here ")
+         # ...
+     ```
+
+   - Replace `"Your link or the sheet here "` with the actual URL or link to your Google Sheets document. This document should contain data from the Redfin scraper.
+
+   - Ensure that your Google Sheets document is set up with the Coefficient extension to connect it to your database.
+## Database Configuration and Migrations
+
+This web application uses Flask SQLAlchemy for database operations and Flask-Migrate for managing database migrations. Here's how to configure the database and perform migrations:
+
+### Database Configuration
+
+The database configuration can be found in the `app.py` file in the project. By default, the application uses SQLite as the database. You can modify the database URI to use a different database system. The default SQLite configuration is as follows:
+
+```python
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///scraped_data.db'
+```
+
+#### SQLite (Default)
+
+SQLite is a lightweight and serverless database engine suitable for development and small-scale applications. You don't need to install a separate database server to use SQLite.
+
+To use SQLite, keep the configuration in `app.py` as shown above.
+
+#### Other Database Systems
+
+If you prefer to use a different database system (e.g., PostgreSQL, MySQL), you can modify the database URI in `app.py`. For example, for PostgreSQL:
+
+```python
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@localhost/database_name'
+```
+
+Replace `username`, `password`, `localhost`, and `database_name` with your specific database credentials and configuration.
+
+### Database Migrations
+
+Flask-Migrate is used to manage database migrations, allowing you to make changes to the database schema over time.
+
+1. After making changes to your models or database schema, you'll need to create a migration:
+
+   ```bash
+   flask db init
+   ```
+
+2. Generate a migration script based on your changes:
+
+   ```bash
+   flask db migrate -m "Description of the migration"
+   ```
+
+3. Apply the migration to update the database:
+
+   ```bash
+   flask db upgrade
+   ```
+
+   This will apply the changes to the database schema.
+
+Remember to create a new migration and upgrade the database each time you make changes to your models.
 7. Run the Flask application:
    ```bash
    python app.py
